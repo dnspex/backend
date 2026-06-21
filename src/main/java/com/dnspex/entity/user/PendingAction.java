@@ -1,6 +1,7 @@
 package com.dnspex.entity.user;
 
 import com.dnspex.entity.base.AbstractAuditingEntity;
+import com.dnspex.entity.listener.AuditingEntityListener;
 import com.dnspex.util.enumeration.PendingActionType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,11 +14,12 @@ import java.util.UUID;
 @Setter
 @Getter
 @Table(name = "user_pending_action")
+@EntityListeners(AuditingEntityListener.class)
 public class PendingAction extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id = UUID.randomUUID();
+    public UUID id;
 
     @Column(nullable = false, unique = true)
     public String token = UUID.randomUUID().toString(); //replace it with real random string

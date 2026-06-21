@@ -3,7 +3,7 @@ package com.dnspex.entity.user;
 import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.base.AbstractAuditingEntity;
 import com.dnspex.entity.listener.AuditingEntityListener;
-import com.dnspex.util.enumeration.Roles;
+import com.dnspex.util.enumeration.UserRole;
 import com.dnspex.util.enumeration.UserState;
 import com.dnspex.util.json.JSONBuilder;
 import jakarta.persistence.*;
@@ -22,7 +22,7 @@ public class User extends AbstractAuditingEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id = UUID.randomUUID();
+    public UUID id;
 
     @Column(unique = true, nullable = false)
     public String email;
@@ -39,7 +39,7 @@ public class User extends AbstractAuditingEntity {
 
     @Enumerated(EnumType.STRING)
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Roles> roles = Set.of(Roles.USER);
+    private Set<UserRole> roles = Set.of(UserRole.USER);
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Session> sessions = new ArrayList<>();

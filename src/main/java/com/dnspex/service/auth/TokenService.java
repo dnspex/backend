@@ -1,5 +1,6 @@
 package com.dnspex.service.auth;
 
+import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.user.User;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,19 +13,19 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class TokenService {
 
-    @ConfigProperty(name = "dnspex.jwt.issuer")
+    @ConfigProperty(name = "mp.jwt.verify.issuer")
     String issuer;
 
-    public String accessToken(User user) {
+    public String accessToken(User user, Session session) {
         Set<String> roles = user.getRoles().stream()
                 .flatMap(role -> role.getInheritedRoles().stream())
                 .collect(Collectors.toSet());
 
-        return Jwt.claims()
+        return Jwt.issuer(this.issuer)
                 .upn(user.getEmail())
                 .claim("id", user.getId()) // uses to identify who taken actions at audit assigned entities
+                .claim("sid", session.getId())
                 .subject(user.getId().toString())
-                .issuer(this.issuer)
                 .groups(roles)
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(60 * 15))

@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Getter
-public enum Roles {
+public enum UserRole {
     USER(1, 1000),
     MODERATOR(4, 2000),
     ADMIN(6, 4000);
@@ -15,13 +15,13 @@ public enum Roles {
     private final int id;
     private final int power;
 
-    Roles(int id, int power) {
+    UserRole(int id, int power) {
         this.id = id;
         this.power = power;
     }
 
     public Set<String> getInheritedRoles() {
-        return Arrays.stream(Roles.values())
+        return Arrays.stream(UserRole.values())
                 .filter(r -> r.power <= this.power)
                 .map(Enum::name)
                 .collect(Collectors.toSet());

@@ -18,7 +18,7 @@ public class Session extends PanacheEntityBase {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id = UUID.randomUUID();
+    public UUID id;
 
     @Column(unique = true)
     public String refreshToken = UUID.randomUUID().toString(); //replace it with real token like jwt

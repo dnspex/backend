@@ -1,9 +1,8 @@
 package com.dnspex.dto.request.user.auth;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public record AuthRegisterRequest (
         @NotBlank(message = "EMAIL_REQUIRED")
@@ -11,8 +10,6 @@ public record AuthRegisterRequest (
         String email,
 
         @NotBlank(message = "PASSWORD_REQUIRED")
-        @Min(value = 8, message = "PASSWORD_TOO_SHORT")
-        @Max(value = 48, message = "PASSWORD_TOO_LONG")
-
+        @Size(min = 8, max = 48, message = "PASSWORD_LENGTH_INVALID")
         String password
 ) { }

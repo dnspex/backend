@@ -37,6 +37,13 @@ public class SessionService {
         return this.create(refreshedSession);
     }
 
+    public Session findById(String sessionId) {
+        return this.sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new HttpResponse(
+                        Response.Status.BAD_REQUEST, "INVALID_SESSION"
+                ));
+    }
+
     public Session findByRefreshToken(String refreshToken) {
         return this.sessionRepository.findByToken(refreshToken)
                 .orElseThrow(() -> new HttpResponse(
@@ -45,7 +52,7 @@ public class SessionService {
     }
 
     public Map<String, String> create(Session session) {
-        return Map.of("accessToken", tokenService.accessToken(session.getUser()), "refreshToken", session.getRefreshToken());
+        return Map.of("accessToken", tokenService.accessToken(session.getUser(), session), "refreshToken", session.getRefreshToken());
     }
 
     @Transactional

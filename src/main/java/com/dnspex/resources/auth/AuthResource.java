@@ -1,11 +1,10 @@
 package com.dnspex.resources.auth;
 
-import com.dnspex.dto.request.user.auth.AuthLoginRequest;
-import com.dnspex.dto.request.user.auth.AuthRegisterRequest;
-import com.dnspex.dto.request.user.auth.AuthResetRequest;
+import com.dnspex.dto.request.user.auth.*;
 import com.dnspex.service.auth.AuthService;
 import com.dnspex.service.user.SessionService;
 import com.dnspex.util.rest.exception.HttpResponse;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -14,7 +13,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-@Path("/auth")
+@Path("/v1/auth")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthResource {
@@ -48,26 +47,26 @@ public class AuthResource {
     }
 
     @DELETE
-    @PermitAll
+    @Authenticated
     @Path("/logout")
-    public Response logout(@Valid @NotBlank String refreshToken) {
-        authService.logout(refreshToken);
+    public Response logout(@Valid AuthLogoutRequest request) {
+        authService.logout(request.refreshToken());
         return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY");
     }
 
     @POST
     @PermitAll
     @Path("/verify")
-    public Response verify(@Valid @NotBlank String token) {
-        authService.verify(token);
+    public Response verify(@Valid AuthVerifyRequest request) {
+        authService.verify(request.token());
         return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY");
     }
 
     @POST
     @PermitAll
     @Path("/password-reset")
-    public Response requestPasswordReset(@Valid @NotBlank String email) {
-        authService.requestPasswordReset(email);
+    public Response requestPasswordReset(@Valid AuthSendResetRequest request) {
+        authService.requestPasswordReset(request.email());
         return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY");
     }
 
@@ -75,7 +74,7 @@ public class AuthResource {
      @PermitAll
      @Path("/password-reset/confirm")
      public Response confirmPasswordReset(@Valid AuthResetRequest request) {
-         authService.resetPassword(request.refreshToken(), request); //ToDO: one param for request ???
+         authService.resetPassword(request);
          return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY");
      }
 }

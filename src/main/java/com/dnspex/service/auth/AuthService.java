@@ -37,7 +37,7 @@ public class AuthService {
     public Map<String, String> login(AuthLoginRequest request) {
         User user = this.userService.findByEmail(request.email());
 
-        if (BcryptUtil.matches(request.password(), user.getPassword())) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_CREDENTIALS");
+        if (!BcryptUtil.matches(request.password(), user.getPassword())) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_CREDENTIALS");
 
         UserState state = user.getState();
         if (state.equals(UserState.INACTIVE)) throw new HttpResponse(Response.Status.BAD_REQUEST, "ACCOUNT_INACTIVE");
@@ -57,11 +57,15 @@ public class AuthService {
         user.setEmail(request.email());
         user.setPassword(BcryptUtil.bcryptHash(request.password()));
         user.persist();
+
+        PendingAction action = this.pendingActionService.create(user, PendingActionType.VERIFY_EMAIL);
+        action.persist(); //ToDo: send verification email
     }
 
     @Transactional
     public void logout(String refreshToken) {
         Session session = this.sessionService.findByRefreshToken(refreshToken);
+        if (session.isExpired()) throw new HttpResponse(Response.Status.BAD_REQUEST, "REFRESH_TOKEN_EXPIRED");
 
         User user = session.getUser();
         List<Session> sessions = user.getSessions();
@@ -85,7 +89,7 @@ public class AuthService {
         user.persist();
 
         action.setUsedAt(LocalDateTime.now());
-        action.persist();
+        action.persist(); // ToDo: send welcome email maybe
     }
 
     @Transactional
@@ -93,14 +97,12 @@ public class AuthService {
         User user = this.userService.findByEmail(email);
 
         PendingAction action = this.pendingActionService.create(user, PendingActionType.PASSWORD_RESET);
-        action.persist();
-
-        //ToDO: send password reset email
+        action.persist(); //ToDO: send password reset email
     }
 
     @Transactional
-    public void resetPassword(String token, AuthResetRequest request) { // add geolocation and timestamp
-        PendingAction action = this.pendingActionService.get(token);
+    public void resetPassword(AuthResetRequest request) { // add geolocation and timestamp
+        PendingAction action = this.pendingActionService.get(request.refreshToken());
 
         PendingActionType type = action.getType();
         if (!type.equals(PendingActionType.PASSWORD_RESET)) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_ACTION_TYPE");
@@ -112,8 +114,6 @@ public class AuthService {
         user.persist();
 
         action.setUsedAt(LocalDateTime.now());
-        action.persist();
-
-        //ToDO: send password reset information mail
+        action.persist(); //ToDO: send password reset information mail
     }
 }
