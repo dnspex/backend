@@ -26,7 +26,7 @@ public class HttpProtectionFilter {
         }
 
         try {
-            var sessionId = jsonWebToken.getClaim("sessionId").toString();
+            var sessionId = jsonWebToken.getClaim("sid").toString();
 
             Session session = this.sessionService.findById(sessionId);
             if (session.isExpired()) throw new HttpResponse(Response.Status.UNAUTHORIZED, "TOKEN_EXPIRED");
