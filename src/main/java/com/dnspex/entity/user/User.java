@@ -6,6 +6,7 @@ import com.dnspex.entity.listener.AuditingEntityListener;
 import com.dnspex.util.enumeration.UserRole;
 import com.dnspex.util.enumeration.UserState;
 import com.dnspex.util.json.JSONBuilder;
+import com.dnspex.util.math.IdentifierManager;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,11 +22,13 @@ import java.util.*;
 public class User extends AbstractAuditingEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id;
+    public String id = IdentifierManager.generate("user");
 
     @Column(unique = true, nullable = false)
     public String email;
+
+    @Column(nullable = false)
+    public String displayName;
 
     @Column(nullable = false)
     public String password;

@@ -5,11 +5,13 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.MappedSuperclass;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+@Getter
 @MappedSuperclass
 public abstract class AbstractAuditingEntity extends PanacheEntityBase {
 

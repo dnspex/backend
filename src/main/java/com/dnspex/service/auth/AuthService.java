@@ -3,6 +3,7 @@ package com.dnspex.service.auth;
 import com.dnspex.dto.request.user.auth.AuthLoginRequest;
 import com.dnspex.dto.request.user.auth.AuthRegisterRequest;
 import com.dnspex.dto.request.user.auth.AuthResetRequest;
+import com.dnspex.dto.request.user.auth.AuthVerifyRequest;
 import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.user.PendingAction;
 import com.dnspex.entity.user.User;
@@ -34,7 +35,7 @@ public class AuthService {
     PendingActionService pendingActionService;
 
     @Transactional
-    public Map<String, String> login(AuthLoginRequest request) {
+    public Map<String, String> login(AuthLoginRequest request, String ipAddress, String deviceHint) {
         User user = this.userService.findByEmail(request.email());
 
         if (!BcryptUtil.matches(request.password(), user.getPassword())) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_CREDENTIALS");
@@ -46,14 +47,17 @@ public class AuthService {
         user.setLastLoginAt(LocalDateTime.now());
         user.persist();
 
-        return this.sessionService.create(user);
+        return this.sessionService.create(user, ipAddress, deviceHint);
     }
 
     @Transactional
     public void register(AuthRegisterRequest request) {
-        if (this.userService.existsByEmail(request.email())) throw new HttpResponse(Response.Status.BAD_REQUEST, "EMAIL_ALREADY_REGISTERED");
+        String email = request.email();
+
+        if (this.userService.existsByEmail(email)) throw new HttpResponse(Response.Status.BAD_REQUEST, "EMAIL_ALREADY_REGISTERED");
 
         User user = new User();
+        user.setDisplayName(email.split("@")[0]);
         user.setEmail(request.email());
         user.setPassword(BcryptUtil.bcryptHash(request.password()));
         user.persist();
@@ -77,8 +81,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void verify(String token) {
-        PendingAction action = this.pendingActionService.get(token);
+    public Map<String, String> verify(AuthVerifyRequest request, String ipAddress, String deviceHint) {
+        PendingAction action = this.pendingActionService.get(request.token());
 
         PendingActionType type = action.getType();
         if (!type.equals(PendingActionType.VERIFY_EMAIL)) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_ACTION_TYPE");
@@ -90,6 +94,8 @@ public class AuthService {
 
         action.setUsedAt(LocalDateTime.now());
         action.persist(); // ToDo: send welcome email maybe
+
+        return this.sessionService.create(user, ipAddress, deviceHint);
     }
 
     @Transactional

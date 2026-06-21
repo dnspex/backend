@@ -3,12 +3,13 @@ package com.dnspex.entity.user;
 import com.dnspex.entity.base.AbstractAuditingEntity;
 import com.dnspex.entity.listener.AuditingEntityListener;
 import com.dnspex.util.enumeration.PendingActionType;
+import com.dnspex.util.math.IdentifierManager;
+import com.dnspex.util.math.TokenManager;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @Entity
 @Setter
@@ -18,11 +19,10 @@ import java.util.UUID;
 public class PendingAction extends AbstractAuditingEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id;
+    public String id = IdentifierManager.generate("pa");
 
     @Column(nullable = false, unique = true)
-    public String token = UUID.randomUUID().toString(); //replace it with real random string
+    public String token = TokenManager.generate(); //replace it with real random string
 
     public LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
 

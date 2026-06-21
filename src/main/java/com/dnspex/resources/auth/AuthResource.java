@@ -5,11 +5,13 @@ import com.dnspex.service.auth.AuthService;
 import com.dnspex.service.user.SessionService;
 import com.dnspex.util.rest.exception.HttpResponse;
 import io.quarkus.security.Authenticated;
+import io.vertx.core.http.HttpServerRequest;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -17,6 +19,9 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class AuthResource {
+
+    @Context
+    HttpServerRequest httpServerRequest;
 
     @Inject
     AuthService authService;
@@ -35,11 +40,13 @@ public class AuthResource {
     @PermitAll
     @Path("/login")
     public Response login(@Valid AuthLoginRequest request) {
-        return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY", authService.login(request));
+        return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY", authService.login(request,
+                httpServerRequest.remoteAddress().toString(),
+                httpServerRequest.getHeader("User-Agent")
+        ));
     }
 
     @POST
-    @PermitAll
     @Path("/register")
     public Response register(@Valid AuthRegisterRequest request) {
         authService.register(request);
@@ -58,8 +65,10 @@ public class AuthResource {
     @PermitAll
     @Path("/verify")
     public Response verify(@Valid AuthVerifyRequest request) {
-        authService.verify(request.token());
-        return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY");
+        return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY", authService.verify(request,
+                httpServerRequest.remoteAddress().toString(),
+                httpServerRequest.getHeader("User-Agent")
+        ));
     }
 
     @POST

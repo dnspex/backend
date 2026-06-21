@@ -4,6 +4,7 @@ import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.user.User;
 import com.dnspex.repository.SessionRepository;
 import com.dnspex.service.auth.TokenService;
+import com.dnspex.util.math.TokenManager;
 import com.dnspex.util.rest.exception.HttpResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -12,7 +13,6 @@ import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
 import java.util.Map;
-import java.util.UUID;
 
 @ApplicationScoped
 public class SessionService {
@@ -57,14 +57,14 @@ public class SessionService {
 
     @Transactional
     public Session refresh(Session session) {
-        session.setRefreshToken(UUID.randomUUID().toString());
+        session.setRefreshToken(TokenManager.generate());
         session.setLastUsedAt(LocalDateTime.now());
         session.persist();
 
         return session;
     }
 
-    public Map<String, String> create(User user) {
+    public Map<String, String> create(User user, String ipAddress, String deviceHint) {
         Session session = new Session();
         session.setUser(user);
         session.setIpAddress("127.0.0.1"); //ToDo: get ip address from request

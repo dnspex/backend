@@ -1,5 +1,8 @@
 package com.dnspex.service.user;
 
+import com.dnspex.dto.response.user.UserPrivateResponse;
+import com.dnspex.dto.response.user.UserPublicResponse;
+import com.dnspex.dto.response.user.UserResponse;
 import com.dnspex.entity.user.User;
 import com.dnspex.repository.UserRepository;
 import com.dnspex.util.rest.exception.HttpResponse;
@@ -16,6 +19,15 @@ public class UserService {
 
     @Inject
     JsonWebToken jsonWebToken;
+
+    public UserResponse get(String id) {
+        User sessionOwner = this.get();
+
+        User user = this.findByIdAndActive(id);
+        if (!user.getId().equals(sessionOwner.getId())) return UserPublicResponse.of(user);
+
+        return UserPrivateResponse.of(user);
+    }
 
     public User get() {
         var userId = jsonWebToken.getSubject();
