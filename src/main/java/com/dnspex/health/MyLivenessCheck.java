@@ -1,4 +1,4 @@
-package com.dnspex;
+package com.dnspex.health;
 
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
