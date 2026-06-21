@@ -81,7 +81,7 @@ public class AuthService {
 
         User user = action.getUser();
         user.setState(UserState.ACTIVE);
-        user.setActivatedAt(LocalDateTime.now());
+        user.activate();
         user.persist();
 
         action.setUsedAt(LocalDateTime.now());

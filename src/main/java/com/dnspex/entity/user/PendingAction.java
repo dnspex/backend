@@ -12,7 +12,7 @@ import java.util.UUID;
 @Entity
 @Setter
 @Getter
-@Table(name = "user_pending_actions")
+@Table(name = "user_pending_action")
 public class PendingAction extends AbstractAuditingEntity {
 
     @Id

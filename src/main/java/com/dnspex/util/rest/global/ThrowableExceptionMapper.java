@@ -1,6 +1,6 @@
 package com.dnspex.util.rest.global;
 
-import com.cuddoo.http.exception.HttpResponsePayload;
+import com.dnspex.util.rest.HttpResponsePayload;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -15,7 +15,7 @@ public class ThrowableExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable exception) {
-        LOG.error("Unerwarteter Systemfehler: ", exception);
+        LOG.error("An unexpected error occurred", exception);
 
         HttpResponsePayload payload = new HttpResponsePayload(
                 "INTERNAL_SERVER_ERROR",

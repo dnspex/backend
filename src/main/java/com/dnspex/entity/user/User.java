@@ -6,8 +6,6 @@ import com.dnspex.entity.listener.AuditingEntityListener;
 import com.dnspex.util.enumeration.Roles;
 import com.dnspex.util.enumeration.UserState;
 import com.dnspex.util.json.JSONBuilder;
-import io.quarkus.security.jpa.Password;
-import io.quarkus.security.jpa.UserDefinition;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,7 +16,6 @@ import java.util.*;
 @Getter
 @Setter
 @Entity
-@UserDefinition
 @Table(name = "users")
 @EntityListeners(AuditingEntityListener.class)
 public class User extends AbstractAuditingEntity {
@@ -30,7 +27,6 @@ public class User extends AbstractAuditingEntity {
     @Column(unique = true, nullable = false)
     public String email;
 
-    @Password
     @Column(nullable = false)
     public String password;
 
@@ -57,10 +53,6 @@ public class User extends AbstractAuditingEntity {
                 .add("roles", roles)
                 .add("lastLoginAt", lastLoginAt)
                 .toMap();
-    }
-
-    public boolean isActivated() {
-        return activatedAt != null;
     }
 
     public void activate() {

@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Table(name = "sessions")
+@Table(name = "session")
 @Entity
 public class Session extends PanacheEntityBase {
 

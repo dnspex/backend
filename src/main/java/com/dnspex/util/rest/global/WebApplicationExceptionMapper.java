@@ -1,6 +1,6 @@
 package com.dnspex.util.rest.global;
 
-import com.cuddoo.http.exception.HttpResponsePayload;
+import com.dnspex.util.rest.HttpResponsePayload;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;

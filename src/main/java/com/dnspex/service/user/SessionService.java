@@ -49,7 +49,7 @@ public class SessionService {
     }
 
     @Transactional
-    private Session refresh(Session session) {
+    public Session refresh(Session session) {
         session.setRefreshToken(UUID.randomUUID().toString());
         session.setLastUsedAt(LocalDateTime.now());
         session.persist();
