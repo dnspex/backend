@@ -13,6 +13,7 @@ import com.dnspex.service.user.UserService;
 import com.dnspex.util.enumeration.PendingActionType;
 import com.dnspex.util.enumeration.UserState;
 import com.dnspex.util.rest.exception.HttpResponse;
+import com.resend.services.emails.model.Template;
 import io.quarkus.elytron.security.common.BcryptUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -33,6 +34,9 @@ public class AuthService {
 
     @Inject
     PendingActionService pendingActionService;
+
+    @Inject
+    MailService mailService;
 
     @Transactional
     public Map<String, String> login(AuthLoginRequest request, String ipAddress, String deviceHint) {
@@ -63,7 +67,9 @@ public class AuthService {
         user.persist();
 
         PendingAction action = this.pendingActionService.create(user, PendingActionType.VERIFY_EMAIL);
-        action.persist(); //ToDo: send verification email
+        action.persist();
+
+        this.mailService.send("verify", email, "activate-account", new Template.Variable("token", action.getToken()));
     }
 
     @Transactional
@@ -93,7 +99,9 @@ public class AuthService {
         user.persist();
 
         action.setUsedAt(LocalDateTime.now());
-        action.persist(); // ToDo: send welcome email maybe
+        action.persist();
+
+        this.mailService.send("welcome", user.getEmail(), "account-welcome");
 
         return this.sessionService.create(user, ipAddress, deviceHint);
     }
@@ -103,11 +111,13 @@ public class AuthService {
         User user = this.userService.findByEmail(email);
 
         PendingAction action = this.pendingActionService.create(user, PendingActionType.PASSWORD_RESET);
-        action.persist(); //ToDO: send password reset email
+        action.persist();
+
+        this.mailService.send("security", user.getEmail(), "password-reset", new Template.Variable("token", action.getToken()));
     }
 
     @Transactional
-    public void resetPassword(AuthResetRequest request) { // add geolocation and timestamp
+    public void resetPassword(AuthResetRequest request) {
         PendingAction action = this.pendingActionService.get(request.refreshToken());
 
         PendingActionType type = action.getType();
@@ -120,6 +130,8 @@ public class AuthService {
         user.persist();
 
         action.setUsedAt(LocalDateTime.now());
-        action.persist(); //ToDO: send password reset information mail
+        action.persist();
+
+        this.mailService.send("security", user.getEmail(), "password-changed");
     }
 }

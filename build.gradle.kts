@@ -23,16 +23,17 @@ dependencies {
     implementation("io.quarkus:quarkus-hibernate-orm-panache")
     implementation("io.quarkus:quarkus-hibernate-validator")
     implementation("io.quarkus:quarkus-rest-jackson")
-    implementation("io.quarkus:quarkus-smallrye-openapi")
-    implementation("io.quarkus:quarkus-websockets")
+    //implementation("io.quarkus:quarkus-smallrye-openapi")
+    //implementation("io.quarkus:quarkus-websockets")
     implementation("io.quarkus:quarkus-security-jpa")
     //implementation("io.quarkus:quarkus-redis-cache")
     //implementation("io.quarkus:quarkus-redis-client")
     //implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
     implementation("io.quarkus:quarkus-arc")
 
-    compileOnly("org.projectlombok:lombok:1.18.46")
-    annotationProcessor("org.projectlombok:lombok:1.18.46")
+    implementation("com.resend:resend-java:+")
+    compileOnly("org.projectlombok:lombok:+")
+    annotationProcessor("org.projectlombok:lombok:+")
 
     implementation("com.google.code.gson:gson:2.14.0")
 

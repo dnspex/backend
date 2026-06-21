@@ -25,7 +25,7 @@ public class TokenService {
                 .upn(user.getEmail())
                 .claim("id", user.getId()) // uses to identify who taken actions at audit assigned entities
                 .claim("sid", session.getId())
-                .subject(user.getId().toString())
+                .subject(user.getId())
                 .groups(roles)
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(60 * 15))

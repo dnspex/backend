@@ -20,6 +20,7 @@ public class PendingActionService {
     public PendingAction create(User user, PendingActionType type) {
         PendingAction action = new PendingAction();
         action.setType(type);
+        action.setExpiresAt(type.getExpiresAt());
         action.setUser(user);
 
         return action;

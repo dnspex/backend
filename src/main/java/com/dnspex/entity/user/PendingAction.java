@@ -22,12 +22,14 @@ public class PendingAction extends AbstractAuditingEntity {
     public String id = IdentifierManager.generate("pa");
 
     @Column(nullable = false, unique = true)
-    public String token = TokenManager.generate(); //replace it with real random string
+    public String token = TokenManager.generate();
 
-    public LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
+    @Column(nullable = false)
+    public LocalDateTime expiresAt;
 
-    public LocalDateTime usedAt = null;
+    public LocalDateTime usedAt = null; //maybe boolean and scheduler to clear the pending action
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     public PendingActionType type;
 
