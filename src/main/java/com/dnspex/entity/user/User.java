@@ -47,17 +47,6 @@ public class User extends AbstractAuditingEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Session> sessions = new ArrayList<>();
 
-    public Map<String, Object> toScheme() {
-        return JSONBuilder.create()
-                .add("id", id)
-                .add("email", email)
-                .add("createdAt", createdAt)
-                .add("lastModifiedAt", lastModifiedAt)
-                .add("roles", roles)
-                .add("lastLoginAt", lastLoginAt)
-                .toMap();
-    }
-
     public void activate() {
         this.activatedAt = LocalDateTime.now();
     }

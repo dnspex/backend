@@ -11,7 +11,7 @@ import org.jboss.logging.Logger;
 
 import java.io.IOException;
 
-@Provider
+//@Provider
 public class LoggingFilter implements ContainerRequestFilter {
 
     private static final Logger LOG = Logger.getLogger(LoggingFilter.class);
