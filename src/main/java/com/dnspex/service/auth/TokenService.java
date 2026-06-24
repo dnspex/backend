@@ -23,7 +23,7 @@ public class TokenService {
 
         return Jwt.issuer(this.issuer)
                 .upn(user.getEmail())
-                .claim("id", user.getId()) // uses to identify who taken actions at audit assigned entities
+                .claim("id", user.getId()) // uses to identify who taken actions at log assigned entities
                 .claim("sid", session.getId())
                 .subject(user.getId())
                 .groups(roles)

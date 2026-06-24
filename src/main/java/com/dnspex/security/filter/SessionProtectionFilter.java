@@ -51,7 +51,7 @@ public class SessionProtectionFilter implements ContainerRequestFilter {
         Session session = this.sessionService.findById(sessionId);
         if (session.isExpired()) throw new HttpResponse(Response.Status.UNAUTHORIZED, "TOKEN_EXPIRED");
 
-        //context.setProperty("userId", session.getUser().getId()); we use jwt claims instead of session properties to avoid db calls in other filters and resources
-        //context.setProperty("sessionId", session.getId());
+        context.setProperty("uid", session.getUser().getId()); //we use jwt claims instead of session properties to avoid db calls in other filters and resources
+        context.setProperty("sid", session.getId());
     }
 }

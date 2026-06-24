@@ -61,8 +61,8 @@ public class AuthService {
         if (this.userService.existsByEmail(email)) throw new HttpResponse(Response.Status.BAD_REQUEST, "EMAIL_ALREADY_REGISTERED");
 
         User user = new User();
-        user.setDisplayName(email.split("@")[0]);
         user.setEmail(request.email());
+        user.setDisplayName(request.displayName());
         user.setPassword(BcryptUtil.bcryptHash(request.password()));
         user.persist();
 

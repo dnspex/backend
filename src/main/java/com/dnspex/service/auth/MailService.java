@@ -7,6 +7,8 @@ import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.Template;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 
@@ -14,6 +16,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
+@Getter
 @ApplicationScoped
 public class MailService {
 
@@ -32,9 +36,10 @@ public class MailService {
             Pattern.CASE_INSENSITIVE
     );
 
-    public void send(String from, String to, String templateId, Template.Variable... variables) { //ToDo: async threads with Uni<>
-        Resend resend = new Resend(this.apiKey);
 
+    public final Resend resend = new Resend(this.apiKey);
+
+    public void send(String from, String to, String templateId, Template.Variable... variables) { //ToDo: async threads with Uni<>
         CreateEmailOptions params = CreateEmailOptions.builder().from("DNSPEX <" + from + "@"+domain+">").to(to)
                 .template(Template.builder().id(templateId).variables(variables).build()).build();
 
@@ -78,5 +83,13 @@ public class MailService {
         while (matcher.find()) links.add(matcher.group(1));
 
         return new ArrayList<>(links);
+    }
+
+    public boolean isReachable() {
+        try {
+            return this.resend.domains().list() != null;
+        } catch (ResendException e) {
+            return false;
+        }
     }
 }

@@ -67,8 +67,8 @@ public class SessionService {
     public Map<String, String> create(User user, String ipAddress, String deviceHint) {
         Session session = new Session();
         session.setUser(user);
-        session.setIpAddress("127.0.0.1"); //ToDo: get ip address from request
-        session.setDeviceHint("Hint your mum"); //ToDo: get device hint from request
+        session.setIpAddress(ipAddress);
+        session.setDeviceHint(deviceHint);
         session.persist();
 
         return this.create(session);

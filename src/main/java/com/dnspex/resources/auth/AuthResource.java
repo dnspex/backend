@@ -1,11 +1,11 @@
 package com.dnspex.resources.auth;
 
 import com.dnspex.dto.request.user.auth.*;
+import com.dnspex.security.log.ExcludeBodyLogging;
 import com.dnspex.service.auth.AuthService;
 import com.dnspex.service.user.SessionService;
 import com.dnspex.util.rest.exception.HttpResponse;
 import io.quarkus.security.Authenticated;
-import io.sentry.Sentry;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -39,11 +39,9 @@ public class AuthResource {
 
     @POST
     @PermitAll
+    @ExcludeBodyLogging
     @Path("/login")
     public Response login(@Valid AuthLoginRequest request) {
-        Sentry.logger().info("A simple log message");
-        Sentry.logger().error("A %s log message", "formatted");
-
         return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY", authService.login(request,
                 httpServerRequest.remoteAddress().toString(),
                 httpServerRequest.getHeader("User-Agent")
@@ -51,6 +49,7 @@ public class AuthResource {
     }
 
     @POST
+    @ExcludeBodyLogging
     @Path("/register")
     public Response register(@Valid AuthRegisterRequest request) {
         authService.register(request);
