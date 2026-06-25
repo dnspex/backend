@@ -42,7 +42,6 @@ public class SentryLogger {
     String uid = requestContext.getProperty("uid") != null ? requestContext.getProperty("uid").toString() : "unknown";
     String sid = requestContext.getProperty("sid") != null ? requestContext.getProperty("sid").toString() : "unknown";
 
-
     Sentry.logger().log(SentryLogLevel.INFO, SentryLogParameters.create(
                     SentryAttributes.of(
                             SentryAttribute.stringAttribute("method", method),

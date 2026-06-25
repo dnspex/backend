@@ -3,16 +3,18 @@ package com.dnspex.entity.user;
 import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.base.AbstractAuditingEntity;
 import com.dnspex.entity.listener.AuditingEntityListener;
+import com.dnspex.entity.monitor.Monitor;
 import com.dnspex.util.enumeration.UserRole;
 import com.dnspex.util.enumeration.UserState;
-import com.dnspex.util.json.JSONBuilder;
 import com.dnspex.util.math.IdentifierManager;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -46,6 +48,12 @@ public class User extends AbstractAuditingEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Session> sessions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<PendingAction> pendingActions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<Monitor> monitors = new ArrayList<>();
 
     public void activate() {
         this.activatedAt = LocalDateTime.now();

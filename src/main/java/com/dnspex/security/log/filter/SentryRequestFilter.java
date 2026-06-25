@@ -19,14 +19,13 @@ public class SentryRequestFilter {
     @Inject
     SentryLogger trafficLogger;
 
-
     @ServerRequestFilter
     public void log(HttpServerRequest request, ContainerRequestContext requestContext) {
         String method  = request.method().name();
         String uri     = request.absoluteURI();
 
         MultiMap reqHeaders = request.headers();
-        reqHeaders.remove("Authorization");
+        reqHeaders.remove("Authorization"); //bypass sentry filtered headers
 
         String headers = trafficLogger.formatRequestHeaders(reqHeaders);
 

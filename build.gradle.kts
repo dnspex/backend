@@ -30,6 +30,7 @@ dependencies {
     //implementation("io.quarkus:quarkus-redis-client")
     //implementation("io.quarkiverse.amazonservices:quarkus-amazon-s3")
     implementation("io.quarkus:quarkus-arc")
+    implementation("dnsjava:dnsjava:3.6.5")
 
     implementation("com.resend:resend-java:+")
     compileOnly("org.projectlombok:lombok:+")

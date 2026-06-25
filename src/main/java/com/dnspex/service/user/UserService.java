@@ -21,7 +21,7 @@ public class UserService {
     JsonWebToken jsonWebToken;
 
     public UserResponse get(String id) {
-        User sessionOwner = this.get();
+        User sessionOwner = this.getSafe();
 
         User user = this.findByIdAndActive(id);
         if (!user.getId().equals(sessionOwner.getId())) return UserPublicResponse.of(user);
@@ -29,9 +29,22 @@ public class UserService {
         return UserPrivateResponse.of(user);
     }
 
+
+    public User getSafe() {
+        var userId = jsonWebToken.getSubject();
+        return this.findById(userId);
+    }
+
     public User get() {
         var userId = jsonWebToken.getSubject();
-        return this.findByIdAndActive(userId);
+        return this.findById(userId);
+    }
+
+    public User findById(String id) {
+        return userRepository.findByIdOptional(Long.valueOf(id))
+                .orElseThrow(() -> new HttpResponse(
+                        Response.Status.NOT_FOUND, "USER_NOT_FOUND"
+                ));
     }
 
     public User findByIdAndActive(String id) {
