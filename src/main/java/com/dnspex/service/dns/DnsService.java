@@ -16,9 +16,9 @@ public class DnsService {
     @Inject
     UserService userService;
 
-    DnsService() {
+    public void dns() {
         try {
-            Record[] records = new Lookup("schweizr.de", Type.A, DClass.IN).run();
+            Record[] records = new Lookup("cuddoo.com", Type.A, DClass.IN).run();
             for (Record record : records) {
                 System.out.println(record.getName());
                 System.out.println(record.rdataToString());

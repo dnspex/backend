@@ -13,10 +13,9 @@ import jakarta.ws.rs.ext.Provider;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.net.URI;
-import java.security.Principal;
 
 @Provider
-@Priority(Priorities.AUTHENTICATION - 1)
+@Priority(Priorities.AUTHENTICATION -1)
 @PreMatching
 public class MePathResolverFilter implements ContainerRequestFilter {
 
@@ -26,7 +25,6 @@ public class MePathResolverFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext ctx) {
         var path = ctx.getUriInfo().getPath();
-        var securityContext = ctx.getSecurityContext();
         var auth = ctx.getHeaderString("Authorization");
 
         if(path.contains("@me") && auth != null && auth.startsWith("Bearer "))  {
@@ -36,13 +34,6 @@ public class MePathResolverFilter implements ContainerRequestFilter {
             }
 
             URI baseUri = ctx.getUriInfo().getBaseUri();
-
-            Principal principal = securityContext.getUserPrincipal();
-
-            if (principal.getName().equals(jsonWebToken.getSubject())) {
-                ctx.abortWith(HttpResponse.send(Response.Status.FORBIDDEN, "FORBIDDEN_NAME"));
-                return;
-            }
 
             String userId = jsonWebToken.getClaim("id").toString();
 

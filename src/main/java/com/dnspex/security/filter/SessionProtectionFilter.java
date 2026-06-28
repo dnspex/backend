@@ -1,6 +1,6 @@
 package com.dnspex.security.filter;
 
-import com.dnspex.entity.auth.Session;
+import com.dnspex.entity.user.Session;
 import com.dnspex.service.user.SessionService;
 import com.dnspex.util.rest.exception.HttpResponse;
 import io.quarkus.security.Authenticated;

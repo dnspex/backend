@@ -1,6 +1,5 @@
-package com.dnspex.entity.auth;
+package com.dnspex.entity.user;
 
-import com.dnspex.entity.user.User;
 import com.dnspex.util.math.IdentifierManager;
 import com.dnspex.util.math.TokenManager;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -28,12 +27,15 @@ public class Session extends PanacheEntityBase {
     public LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false)
-    public LocalDateTime expiresAt = LocalDateTime.now().plusHours(24);
+    public LocalDateTime expiresAt = LocalDateTime.now().plusDays(7);
 
     @Column(nullable = false)
     public LocalDateTime lastUsedAt = LocalDateTime.now();
 
+    @Column(nullable = false)
     public String deviceHint;
+
+    @Column(nullable = false)
     public String ipAddress;
 
     @ManyToOne

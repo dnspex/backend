@@ -1,12 +1,10 @@
 package com.dnspex.service.auth;
 
-import com.dnspex.dto.request.user.auth.AuthLoginRequest;
-import com.dnspex.dto.request.user.auth.AuthRegisterRequest;
-import com.dnspex.dto.request.user.auth.AuthResetRequest;
-import com.dnspex.dto.request.user.auth.AuthVerifyRequest;
-import com.dnspex.entity.auth.Session;
+import com.dnspex.dto.request.user.auth.*;
+import com.dnspex.entity.user.Session;
 import com.dnspex.entity.user.PendingAction;
 import com.dnspex.entity.user.User;
+import com.dnspex.service.mail.MailService;
 import com.dnspex.service.user.PendingActionService;
 import com.dnspex.service.user.SessionService;
 import com.dnspex.service.user.UserService;
@@ -46,7 +44,7 @@ public class AuthService {
 
         UserState state = user.getState();
         if (state.equals(UserState.INACTIVE)) throw new HttpResponse(Response.Status.BAD_REQUEST, "ACCOUNT_INACTIVE");
-        if (state.equals(UserState.DELETED)) throw new HttpResponse(Response.Status.BAD_REQUEST, "ACCOUNT_DELETED");
+        if (state.equals(UserState.DEACTIVATED)) throw new HttpResponse(Response.Status.BAD_REQUEST, "ACCOUNT_DEACTIVATED");
 
         user.setLastLoginAt(LocalDateTime.now());
         user.persist();
@@ -73,8 +71,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String refreshToken) {
-        Session session = this.sessionService.findByRefreshToken(refreshToken);
+    public void logout(String token) {
+        Session session = this.sessionService.findByRefreshToken(token);
         if (session.isExpired()) throw new HttpResponse(Response.Status.BAD_REQUEST, "REFRESH_TOKEN_EXPIRED");
 
         User user = session.getUser();
@@ -87,15 +85,15 @@ public class AuthService {
     }
 
     @Transactional
-    public Map<String, String> verify(AuthVerifyRequest request, String ipAddress, String deviceHint) {
-        PendingAction action = this.pendingActionService.get(request.token());
+    public Map<String, String> verify(String token, String ipAddress, String deviceHint) {
+        PendingAction action = this.pendingActionService.get(token);
 
         PendingActionType type = action.getType();
         if (!type.equals(PendingActionType.VERIFY_EMAIL)) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_ACTION_TYPE");
 
         User user = action.getUser();
         user.setState(UserState.ACTIVE);
-        user.activate();
+        user.setActivatedAt(LocalDateTime.now());
         user.setLastLoginAt(LocalDateTime.now());
         user.persist();
 
@@ -119,7 +117,7 @@ public class AuthService {
 
     @Transactional
     public void resetPassword(AuthResetRequest request) {
-        PendingAction action = this.pendingActionService.get(request.refreshToken());
+        PendingAction action = this.pendingActionService.get(request.token());
 
         PendingActionType type = action.getType();
         if (!type.equals(PendingActionType.PASSWORD_RESET)) throw new HttpResponse(Response.Status.BAD_REQUEST, "INVALID_ACTION_TYPE");

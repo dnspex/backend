@@ -1,6 +1,6 @@
 package com.dnspex.health;
 
-import com.dnspex.service.auth.MailService;
+import com.dnspex.service.mail.MailService;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;

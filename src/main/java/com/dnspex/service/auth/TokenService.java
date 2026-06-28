@@ -1,6 +1,6 @@
 package com.dnspex.service.auth;
 
-import com.dnspex.entity.auth.Session;
+import com.dnspex.entity.user.Session;
 import com.dnspex.entity.user.User;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;

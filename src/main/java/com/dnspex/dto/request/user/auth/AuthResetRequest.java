@@ -10,5 +10,6 @@ public record AuthResetRequest (
         @Max(value = 48, message = "PASSWORD_TOO_LONG")
         String password,
 
-        String refreshToken
+        @NotBlank(message = "TOKEN_REQUIRED")
+        String token
 ) { }

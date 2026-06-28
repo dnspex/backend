@@ -1,6 +1,6 @@
 package com.dnspex.service.user;
 
-import com.dnspex.entity.auth.Session;
+import com.dnspex.entity.user.Session;
 import com.dnspex.entity.user.User;
 import com.dnspex.repository.SessionRepository;
 import com.dnspex.service.auth.TokenService;
@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
@@ -37,24 +38,6 @@ public class SessionService {
         return this.create(refreshedSession);
     }
 
-    public Session findById(String sessionId) {
-        return this.sessionRepository.findById(sessionId)
-                .orElseThrow(() -> new HttpResponse(
-                        Response.Status.BAD_REQUEST, "INVALID_SESSION"
-                ));
-    }
-
-    public Session findByRefreshToken(String refreshToken) {
-        return this.sessionRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new HttpResponse(
-                        Response.Status.BAD_REQUEST, "INVALID_REFRESH_TOKEN"
-                ));
-    }
-
-    public Map<String, String> create(Session session) {
-        return Map.of("accessToken", tokenService.accessToken(session.getUser(), session), "refreshToken", session.getRefreshToken());
-    }
-
     @Transactional
     public Session refresh(Session session) {
         session.setRefreshToken(TokenManager.generate());
@@ -72,5 +55,40 @@ public class SessionService {
         session.persist();
 
         return this.create(session);
+    }
+
+    public void delete(String sessionId) {
+        Session session = this.findById(sessionId);
+        session.delete();
+    }
+
+    public boolean isExpired(String refreshToken) {
+        Session session = this.findByRefreshToken(refreshToken);
+        return session.isExpired();
+    }
+
+    public Session findById(String sessionId) {
+        return this.sessionRepository.findById(sessionId)
+                .orElseThrow(() -> new HttpResponse(
+                        Response.Status.BAD_REQUEST, "INVALID_SESSION"
+                ));
+    }
+
+    public List<Session> findAllExpired() {
+        return this.sessionRepository.findAll()
+                .stream()
+                .filter(Session::isExpired)
+                .toList();
+    }
+
+    public Session findByRefreshToken(String refreshToken) {
+        return this.sessionRepository.findByToken(refreshToken)
+                .orElseThrow(() -> new HttpResponse(
+                        Response.Status.BAD_REQUEST, "INVALID_REFRESH_TOKEN"
+                ));
+    }
+
+    public Map<String, String> create(Session session) {
+        return Map.of("accessToken", tokenService.accessToken(session.getUser(), session), "refreshToken", session.getRefreshToken());
     }
 }

@@ -1,6 +1,6 @@
 package com.dnspex.repository;
 
-import com.dnspex.entity.auth.Session;
+import com.dnspex.entity.user.Session;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 

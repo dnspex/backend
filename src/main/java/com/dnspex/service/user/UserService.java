@@ -1,15 +1,18 @@
 package com.dnspex.service.user;
 
-import com.dnspex.dto.response.user.UserPrivateResponse;
-import com.dnspex.dto.response.user.UserPublicResponse;
-import com.dnspex.dto.response.user.UserResponse;
+import com.dnspex.entity.user.Session;
 import com.dnspex.entity.user.User;
 import com.dnspex.repository.UserRepository;
+import com.dnspex.util.enumeration.UserState;
 import com.dnspex.util.rest.exception.HttpResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.container.ContainerRequestContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.Response;
-import org.eclipse.microprofile.jwt.JsonWebToken;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @ApplicationScoped
 public class UserService {
@@ -17,27 +20,24 @@ public class UserService {
     @Inject
     UserRepository userRepository;
 
-    @Inject
-    JsonWebToken jsonWebToken;
+    @Context
+    ContainerRequestContext context;
 
-    public UserResponse get(String id) {
-        User sessionOwner = this.getSafe();
+    public void delete() {
+        User user = this.get();
 
-        User user = this.findByIdAndActive(id);
-        if (!user.getId().equals(sessionOwner.getId())) return UserPublicResponse.of(user);
+        List<Session> sessions = user.getSessions();
+        sessions.forEach(Session::delete);
 
-        return UserPrivateResponse.of(user);
-    }
+        user.setDeactivatedAt(LocalDateTime.now());
+        user.setState(UserState.DEACTIVATED);
 
-
-    public User getSafe() {
-        var userId = jsonWebToken.getSubject();
-        return this.findById(userId);
+        user.persist();
     }
 
     public User get() {
-        var userId = jsonWebToken.getSubject();
-        return this.findById(userId);
+        String userId = context.getProperty("uid").toString();
+        return this.findByIdAndActive(userId);
     }
 
     public User findById(String id) {

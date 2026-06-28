@@ -1,7 +1,7 @@
 package com.dnspex.entity.user;
 
-import com.dnspex.entity.auth.Session;
 import com.dnspex.entity.base.AbstractAuditingEntity;
+import com.dnspex.entity.domain.Domain;
 import com.dnspex.entity.listener.AuditingEntityListener;
 import com.dnspex.entity.monitor.Monitor;
 import com.dnspex.util.enumeration.UserRole;
@@ -39,6 +39,8 @@ public class User extends AbstractAuditingEntity {
 
     public LocalDateTime activatedAt = null;
 
+    public LocalDateTime deactivatedAt = null;
+
     @Enumerated(EnumType.STRING)
     public UserState state = UserState.INACTIVE;
 
@@ -55,7 +57,6 @@ public class User extends AbstractAuditingEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     public List<Monitor> monitors = new ArrayList<>();
 
-    public void activate() {
-        this.activatedAt = LocalDateTime.now();
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    public List<Domain> domains = new ArrayList<>();
 }

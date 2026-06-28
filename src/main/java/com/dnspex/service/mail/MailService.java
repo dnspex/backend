@@ -1,12 +1,12 @@
-package com.dnspex.service.auth;
+package com.dnspex.service.mail;
 
-import com.dnspex.util.rest.exception.HttpResponse;
 import com.resend.Resend;
 import com.resend.core.exception.ResendException;
 import com.resend.services.emails.model.CreateEmailOptions;
 import com.resend.services.emails.model.Template;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.core.Response;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -20,6 +20,9 @@ import java.util.regex.Pattern;
 @Getter
 @ApplicationScoped
 public class MailService {
+
+    @Inject
+    Event<MailJob> mailJobs;
 
     @ConfigProperty(name = "resend.enabled")
     Boolean enabled;
@@ -36,23 +39,28 @@ public class MailService {
             Pattern.CASE_INSENSITIVE
     );
 
+    public void send(String from, String to, String templateId, Template.Variable... variables) {
+        this.mailJobs.fire(new MailJob(from, to, templateId, variables));
+    }
 
-    public final Resend resend = new Resend(this.apiKey);
+    void deliver(MailJob job) {
+        Resend resend = new Resend(this.apiKey);
 
-    public void send(String from, String to, String templateId, Template.Variable... variables) { //ToDo: async threads with Uni<>
-        CreateEmailOptions params = CreateEmailOptions.builder().from("DNSPEX <" + from + "@"+domain+">").to(to)
-                .template(Template.builder().id(templateId).variables(variables).build()).build();
+        CreateEmailOptions params = CreateEmailOptions.builder()
+                .from("DNSPEX <" + job.from() + "@" + domain + ">")
+                .to(job.to())
+                .template(Template.builder().id(job.templateId()).variables(job.variables()).build())
+                .build();
 
         try {
-            if(!enabled) {
+            if (!enabled) {
                 this.sendDev(params);
                 return;
             }
 
             resend.emails().send(params);
-        } catch (ResendException e) { //ToDo: handle resend exceptions and log them, also log sent emails for better support and debugging
-            System.out.println("Error sending email: " + e.getMessage());
-            throw new HttpResponse(Response.Status.INTERNAL_SERVER_ERROR, "EMAIL_SENDING_FAILED");
+        } catch (ResendException e) {
+            LOG.errorf(e, "Error sending email to %s with template %s", job.to(), job.templateId());
         }
     }
 
@@ -86,8 +94,9 @@ public class MailService {
     }
 
     public boolean isReachable() {
+        Resend resend = new Resend(this.apiKey);
         try {
-            return this.resend.domains().list() != null;
+            return resend.domains().list() != null;
         } catch (ResendException e) {
             return false;
         }
