@@ -16,7 +16,7 @@ dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     //implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-amazon-services-bom:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-rest")
-    implementation("io.quarkiverse.loggingsentry:quarkus-logging-sentry:2.3.1")
+    implementation("io.quarkiverse.loggingsentry:quarkus-logging-sentry:2.3.3")
     implementation("io.quarkus:quarkus-smallrye-jwt")
     implementation("io.quarkus:quarkus-smallrye-health")
     implementation("io.quarkus:quarkus-jdbc-postgresql")

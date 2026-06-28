@@ -5,12 +5,13 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.http.HttpServerRequest;
 import jakarta.annotation.Priority;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ResourceInfo;
 import jakarta.ws.rs.core.Context;
 import org.jboss.resteasy.reactive.server.ServerRequestFilter;
 
-@Priority(400)
+@Priority(Priorities.HEADER_DECORATOR - 100)
 public class SentryRequestFilter {
 
     @Context
@@ -25,7 +26,7 @@ public class SentryRequestFilter {
         String uri     = request.absoluteURI();
 
         MultiMap reqHeaders = request.headers();
-        reqHeaders.remove("Authorization"); //bypass sentry filtered headers
+        reqHeaders.remove("Authorization"); // bypass sentry filtered headers
 
         String headers = trafficLogger.formatRequestHeaders(reqHeaders);
 

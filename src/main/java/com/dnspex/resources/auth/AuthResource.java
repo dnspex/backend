@@ -50,7 +50,6 @@ public class AuthResource {
 
     @POST
     @PermitAll
-
     @ExcludeBodyLogging
     @Path("/login")
     public Response login(@Valid AuthLoginRequest request) {

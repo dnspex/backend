@@ -41,6 +41,7 @@ public class User extends AbstractAuditingEntity {
 
     public LocalDateTime deactivatedAt = null;
 
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     public UserState state = UserState.INACTIVE;
 

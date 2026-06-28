@@ -1,6 +1,5 @@
 package com.dnspex.security.log;
 
-import io.quarkus.runtime.LaunchMode;
 import io.sentry.*;
 import io.sentry.logger.SentryLogParameters;
 import io.vertx.core.MultiMap;
@@ -19,40 +18,30 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class SentryLogger {
 
-  String profile = LaunchMode.current().name();
-
   private static final int    MAX_BODY_LENGTH = 1000;
   private static final String BODY_EMPTY      = "<empty>";
   private static final String BODY_EXCLUDED   = "<excluded by security>";
-
-  SentryLogger() {
-    Sentry.init(options -> {
-      options.setDsn("https://042733524e069c186383eed615d15420@o4511598016004096.ingest.de.sentry.io/4511598029832272");
-      options.getLogs().setEnabled(true);
-      options.setEnvironment(this.profile.toLowerCase());
-      options.addInAppExclude("*");
-    });
-  }
 
   public void logRequest(String method, String uri, String headers, String body, ContainerRequestContext requestContext) {
     String msg = String.format("─► REQUEST  %s %s", method, uri);
 
     log.info(msg);
 
-    String uid = requestContext.getProperty("uid") != null ? requestContext.getProperty("uid").toString() : "unknown";
-    String sid = requestContext.getProperty("sid") != null ? requestContext.getProperty("sid").toString() : "unknown";
+    String uid = requestContext.getProperty("uid") != null ? requestContext.getProperty("uid").toString() : "anonymous";
+    String sid = requestContext.getProperty("sid") != null ? requestContext.getProperty("sid").toString() : "anonymous";
 
-    Sentry.logger().log(SentryLogLevel.INFO, SentryLogParameters.create(
-                    SentryAttributes.of(
-                            SentryAttribute.stringAttribute("method", method),
-                            SentryAttribute.stringAttribute("uri", uri),
-                            SentryAttribute.stringAttribute("headers", headers),
-                            SentryAttribute.stringAttribute("body", body),
-                            SentryAttribute.stringAttribute("uid", uid),
-                            SentryAttribute.stringAttribute("sid", sid)
-                    )),
-            msg
+    SentryLogParameters params = SentryLogParameters.create(
+            SentryAttributes.of(SentryAttribute.stringAttribute("method", method),
+                    SentryAttribute.stringAttribute("uri", uri),
+                    SentryAttribute.stringAttribute("headers", headers),
+                    SentryAttribute.stringAttribute("body", body),
+                    SentryAttribute.stringAttribute("uid", uid),
+                    SentryAttribute.stringAttribute("sid", sid)
+            )
     );
+
+    params.setOrigin("request.log");
+    Sentry.logger().log(SentryLogLevel.INFO, params, msg);
   }
 
   public void logRequestBodyReadFailed(String method, String uri, String headers, String cause) {
@@ -72,7 +61,7 @@ public class SentryLogger {
     String msg = String.format("◄─ RESPONSE %d %s %s %s", status, statusPhrase, method, uri);
     log.info(msg);
 
-    Sentry.logger().log(SentryLogLevel.INFO, SentryLogParameters.create(
+    SentryLogParameters params = SentryLogParameters.create(
             SentryAttributes.of(
                     SentryAttribute.integerAttribute("status", status),
                     SentryAttribute.stringAttribute("statusPhrase", statusPhrase),
@@ -80,9 +69,11 @@ public class SentryLogger {
                     SentryAttribute.stringAttribute("uri", uri),
                     SentryAttribute.stringAttribute("headers", headers),
                     SentryAttribute.stringAttribute("body", body)
-            )),
-            msg
+            )
     );
+
+    params.setOrigin("response.log");
+    Sentry.logger().log(SentryLogLevel.INFO, params, msg);
   }
 
   public String formatRequestHeaders(MultiMap headers) {
@@ -97,13 +88,6 @@ public class SentryLogger {
             .collect(Collectors.joining(" | "));
   }
 
-  /**
-   * Resolves the body string for logging. Returns a placeholder when the body
-   * is empty or excluded via {@link ExcludeBodyLogging}, and truncates otherwise.
-   * <p>
-   * {@code resourceInfo} may be {@code null} in pre-matched request filters –
-   * the annotation check is skipped in that case.
-   */
   public String resolveBody(String raw, ResourceInfo resourceInfo) {
     if (raw == null || raw.isBlank()) return BODY_EMPTY;
 
