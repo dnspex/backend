@@ -4,10 +4,10 @@ import com.dnspex.dto.request.domain.DomainCreateRequest;
 import com.dnspex.entity.domain.Domain;
 import com.dnspex.entity.user.User;
 import com.dnspex.service.user.UserService;
+import com.dnspex.util.math.TokenManager;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import java.util.Map;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class DomainService {
@@ -15,17 +15,16 @@ public class DomainService {
     @Inject
     UserService userService;
 
-    public Map<String, String> create(DomainCreateRequest request) {
+    @Transactional
+    public Domain create(DomainCreateRequest request) {
         User user = this.userService.get();
 
         Domain domain = new Domain();
         domain.setName(request.name());
         domain.setUser(user);
+        domain.setToken(TokenManager.generate());
         domain.persist();
 
-        return Map.of(
-                "id", domain.getId(),
-                "name", domain.getName()
-        );
+        return domain;
     }
 }

@@ -31,6 +31,8 @@ public class UserDeleteTask {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(userDeleteAfter);
 
         List<User> users = this.userRepository.findAllDeactivatedBefore(cutoff);
+        if (users.isEmpty()) return;
+
         users.forEach(User::delete);
 
         SentryLogParameters params = SentryLogParameters.create(

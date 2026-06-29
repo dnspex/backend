@@ -1,11 +1,16 @@
 package com.dnspex.resources.domain;
 
 import com.dnspex.dto.request.domain.DomainCreateRequest;
+import com.dnspex.dto.response.domain.DomainCreateResponse;
 import com.dnspex.service.domain.DomainService;
-import jakarta.annotation.security.PermitAll;
+import com.dnspex.util.rest.exception.HttpResponse;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
-import jakarta.ws.rs.*;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -18,9 +23,9 @@ public class DomainResource {
     DomainService domainService;
 
     @POST
-    @PermitAll
+    @Authenticated
     @Path("/")
     public Response create(@Valid DomainCreateRequest request) {
-        return Response.ok(domainService.create(request)).build();
+        return HttpResponse.send(Response.Status.OK, "SUCCESSFULLY", DomainCreateResponse.of(domainService.create(request)));
     }
 }

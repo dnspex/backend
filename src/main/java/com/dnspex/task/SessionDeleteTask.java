@@ -26,6 +26,9 @@ public class SessionDeleteTask {
     @Scheduled(cron = "{dnspex.scheduled.session.delete.interval}", timeZone = "{dnspex.scheduled.default.timezone}")
     void delete() {
         List<Session> sessions = this.sessionService.findAllExpired();
+
+        if (sessions.isEmpty()) return;
+
         sessions.forEach(PanacheEntityBase::delete);
 
         SentryLogParameters params = SentryLogParameters.create(

@@ -9,7 +9,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -32,8 +31,8 @@ public class Domain extends AbstractAuditingEntity {
     @Column(nullable = false, unique = true)
     public String token;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     public DomainState state = DomainState.PENDING;
 
     @ElementCollection
@@ -41,5 +40,9 @@ public class Domain extends AbstractAuditingEntity {
     @Column(name = "update")
     public Set<String> updates = Set.of();
 
-    public LocalDateTime verifiedAt = null; //ToDO: scheduler update
+    //public LocalDateTime verifiedAt = null; //ToDO: scheduler update (90
+
+    public boolean isVerified() {
+        return this.state == DomainState.VERIFIED; //&& this.verifiedAt != null;
+    }
 }
